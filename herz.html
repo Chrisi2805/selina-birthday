@@ -32,13 +32,13 @@
     let ax=.26,ay=0,zoom=1,drag=false,lx=0,ly=0,auto=true;
     function rot(p){let cy=Math.cos(ay),sy=Math.sin(ay),x=p.x*cy+p.z*sy,z=-p.x*sy+p.z*cy,cx=Math.cos(ax),sx=Math.sin(ax),y=p.y*cx-z*sx;z=p.y*sx+z*cx;return{x,y,z}}
     function draw(){ctx.clearRect(0,0,width,height);ctx.textAlign='center';ctx.textBaseline='middle';for(const q of pts){let p=rot(q.p),f=900/(900+p.z*scale),fs=15*f*zoom;ctx.font=`700 ${Math.max(6,fs)}px Montserrat,sans-serif`;ctx.fillStyle=q.c;ctx.globalAlpha=Math.max(.2,Math.min(1,f));ctx.fillText(q.w,cx+p.x*scale*f*zoom,cy+p.y*scale*f*zoom)}ctx.globalAlpha=1;if(auto&&!drag)ay+=.006;requestAnimationFrame(draw)}requestAnimationFrame(draw);
-    /* FIX: vertical/Z rotation was inverted. Dragging down now rotates the scene down, and dragging up rotates it up. */
+    /* FIX: only invert the vertical/Z drag direction; everything else stays unchanged. */
     document.addEventListener('mousedown',e=>{if(e.target.tagName==='BUTTON')return;drag=true;auto=false;lx=e.clientX;ly=e.clientY});
-    document.addEventListener('mousemove',e=>{if(!drag)return;ay-=(e.clientX-lx)*.006;ax+=(e.clientY-ly)*.006;ax=Math.max(-1.3,Math.min(1.3,ax));lx=e.clientX;ly=e.clientY});
+    document.addEventListener('mousemove',e=>{if(!drag)return;ay-=(e.clientX-lx)*.006;ax-=(e.clientY-ly)*.006;ax=Math.max(-1.3,Math.min(1.3,ax));lx=e.clientX;ly=e.clientY});
     document.addEventListener('mouseup',()=>{drag=false;auto=true});
     document.addEventListener('wheel',e=>{zoom=Math.max(.55,Math.min(2.4,zoom-e.deltaY*.001))},{passive:true});
     let tx=0,ty=0,pinch=null;document.addEventListener('touchstart',e=>{if(e.target.tagName==='BUTTON')return;if(e.touches.length===1){drag=true;auto=false;tx=e.touches[0].clientX;ty=e.touches[0].clientY}else if(e.touches.length===2)pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)},{passive:true});
-    document.addEventListener('touchmove',e=>{if(e.touches.length===1&&drag){let dx=e.touches[0].clientX-tx,dy=e.touches[0].clientY-ty;ay-=dx*.006;ax+=dy*.006;ax=Math.max(-1.3,Math.min(1.3,ax));tx=e.touches[0].clientX;ty=e.touches[0].clientY}else if(e.touches.length===2&&pinch){let d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoom=Math.max(.55,Math.min(2.4,zoom+(d-pinch)*.0035));pinch=d}},{passive:true});document.addEventListener('touchend',()=>{drag=false;auto=true;pinch=null});
+    document.addEventListener('touchmove',e=>{if(e.touches.length===1&&drag){let dx=e.touches[0].clientX-tx,dy=e.touches[0].clientY-ty;ay-=dx*.006;ax-=dy*.006;ax=Math.max(-1.3,Math.min(1.3,ax));tx=e.touches[0].clientX;ty=e.touches[0].clientY}else if(e.touches.length===2&&pinch){let d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoom=Math.max(.55,Math.min(2.4,zoom+(d-pinch)*.0035));pinch=d}},{passive:true});document.addEventListener('touchend',()=>{drag=false;auto=true;pinch=null});
   })();
   </script>
 </body>
